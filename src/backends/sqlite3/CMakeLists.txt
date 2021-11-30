@@ -76,6 +76,8 @@ if (BUILD_WITH_SHARED_LIBS)
 	  ${THIS_BACKEND_SOURCES}
 	  ${THIS_BACKEND_HEADERS})
 
+  add_dependencies(${THIS_BACKEND_TARGET} SQLite3)
+
 	target_link_libraries(${THIS_BACKEND_TARGET}
 	  ${SOCI_CORE_TARGET}
 	  ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/SQLite3${CMAKE_IMPORT_LIBRARY_SUFFIX})
@@ -106,6 +108,8 @@ if(BUILD_WITH_STATIC_LIBS)
 	  STATIC
 	  ${THIS_BACKEND_SOURCES}
 	  ${THIS_BACKEND_HEADERS})
+
+  add_dependencies(${THIS_BACKEND_TARGET} SQLite3_static)
 
 	# Still need to link the libraries for tests to work
 	target_link_libraries (${THIS_BACKEND_TARGET_STATIC}
