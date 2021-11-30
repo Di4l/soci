@@ -11,4 +11,4 @@
 include_directories(${SOCI_SOURCE_DIR}/include/private)
 
 add_subdirectory(core)
-add_subdirectory(backends)
+add_subdirectory(backends/sqlite3)

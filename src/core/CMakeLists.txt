@@ -37,15 +37,15 @@ string(TOLOWER "${PROJECT_NAME}" PROJECTNAMEL)
 set(SOCI_CORE_TARGET ${PROJECTNAMEL}_core PARENT_SCOPE)
 set(SOCI_CORE_TARGET ${PROJECTNAMEL}_core)
 
-soci_target_output_name(${SOCI_CORE_TARGET} SOCI_CORE_TARGET_OUTPUT_NAME)
+target_output_name(${SOCI_CORE_TARGET} SOCI_CORE_TARGET_OUTPUT_NAME)
 
 #
 # Core shared library
 #
-if (SOCI_SHARED)
+if (BUILD_WITH_SHARED_LIBS)
   add_library(${SOCI_CORE_TARGET} SHARED ${SOCI_CORE_HEADERS} ${SOCI_CORE_SOURCES})
 
-  target_link_libraries(${SOCI_CORE_TARGET} ${SOCI_CORE_DEPS_LIBS})
+  #target_link_libraries(${SOCI_CORE_TARGET} SQLite3)
 
   if(WIN32)
     set_target_properties(${SOCI_CORE_TARGET}
@@ -79,16 +79,15 @@ add_definitions(-DSOCI_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}soci_"
 #
 # Core static library
 #
-if (SOCI_STATIC)
+if (BUILD_WITH_STATIC_LIBS)
   set(SOCI_CORE_TARGET_STATIC ${SOCI_CORE_TARGET}_static)
 
   add_library(${SOCI_CORE_TARGET_STATIC} STATIC
     ${SOCI_CORE_HEADERS} ${SOCI_CORE_SOURCES})
 
   # we still need to link against dl if we have it
-  target_link_libraries (${SOCI_CORE_TARGET_STATIC}
-    ${SOCI_CORE_DEPS_LIBS}
-  )
+#  target_link_libraries (${SOCI_CORE_TARGET_STATIC} ${SOCI_CORE_DEPS_LIBS})
+#  target_link_libraries (${SOCI_CORE_TARGET_STATIC} SQLite3)
 
   set_target_properties(${SOCI_CORE_TARGET_STATIC}
     PROPERTIES
@@ -112,7 +111,7 @@ endif()
 #
 install(FILES ${SOCI_CORE_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECTNAMEL})
 
-if (SOCI_SHARED)
+if (BUILD_WITH_SHARED_LIBS)
   install(TARGETS ${SOCI_CORE_TARGET}
     EXPORT SOCI
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -120,7 +119,7 @@ if (SOCI_SHARED)
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
-if (SOCI_STATIC)
+if (BUILD_WITH_STATIC_LIBS)
   install(TARGETS ${SOCI_CORE_TARGET_STATIC}
     EXPORT SOCI
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -133,15 +132,5 @@ configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/resources/SOCIConfig.c
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/SOCI)
 write_basic_package_version_file(SOCIConfigVersion.cmake VERSION ${SOCI_VERSION} COMPATIBILITY SameMajorVersion)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SOCIConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/SOCIConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/SOCI)
-
-#
-# Core configuration summary
-#
-boost_report_value(SOCI_CORE_TARGET)
-boost_report_value(SOCI_CORE_TARGET_OUTPUT_NAME)
-boost_report_value(SOCI_CORE_DEPS_LIBS)
-boost_report_value(SOCI_CORE_INCLUDE_DIRS)
-boost_report_value(WITH_BOOST)
-soci_report_directory_property(COMPILE_DEFINITIONS)
 
 message(STATUS "")
