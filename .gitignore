@@ -4,6 +4,8 @@
 tags
 tmp
 
+/include/soci/soci-config.h
+
 # Release archives
 /soci*.7z
 /soci*.zip
