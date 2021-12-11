@@ -10,7 +10,8 @@
 ###############################################################################
 # General settings
 ###############################################################################
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+
 
 project(SOCI)
 
@@ -124,7 +125,7 @@ include(GNUInstallDirs)
 set(CONFIG_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 install(DIRECTORY ${CONFIG_INCLUDE_DIR}/soci DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 set(CONFIG_FILE_IN "include/soci/soci-config.h.in")
-set(CONFIG_FILE_OUT "${CONFIG_INCLUDE_DIR}/soci/soci-config.h")
+set(CONFIG_FILE_OUT "${SOCI_SOURCE_DIR}/include/soci/soci-config.h")
 
 
 
