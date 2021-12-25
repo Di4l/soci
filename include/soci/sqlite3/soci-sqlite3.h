@@ -259,7 +259,9 @@ struct sqlite3_blob_backend : details::blob_backend
     std::size_t read(std::size_t offset, char *buf,
                              std::size_t toRead) SOCI_OVERRIDE;
     std::size_t write(std::size_t offset, char const *buf,
-                              std::size_t toWrite) SOCI_OVERRIDE;
+                             std::size_t toWrite) SOCI_OVERRIDE;
+    std::size_t write_from_start(const char* buf, std::size_t toWrite,
+                             std::size_t offset) SOCI_OVERRIDE;
     std::size_t append(char const *buf, std::size_t toWrite) SOCI_OVERRIDE;
     void trim(std::size_t newLen) SOCI_OVERRIDE;
 
@@ -271,6 +273,7 @@ struct sqlite3_blob_backend : details::blob_backend
 private:
     char *buf_;
     size_t len_;
+    size_t m_bufLen;
 };
 
 struct sqlite3_session_backend : details::session_backend

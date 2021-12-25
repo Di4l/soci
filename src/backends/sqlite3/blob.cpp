@@ -14,7 +14,7 @@
 using namespace soci;
 
 sqlite3_blob_backend::sqlite3_blob_backend(sqlite3_session_backend &session)
-    : session_(session), buf_(0), len_(0)
+    : session_(session), buf_(0), len_(0), m_bufLen(0)
 {
 }
 
@@ -25,6 +25,7 @@ sqlite3_blob_backend::~sqlite3_blob_backend()
         delete [] buf_;
         buf_ = 0;
         len_ = 0;
+        m_bufLen = 0;
     }
 }
 
@@ -51,15 +52,17 @@ std::size_t sqlite3_blob_backend::read(
 }
 
 
-std::size_t sqlite3_blob_backend::write(
-    std::size_t offset, char const * buf,
-    std::size_t toWrite)
+std::size_t sqlite3_blob_backend::write(std::size_t offset, char const * buf, std::size_t toWrite)
 {
     const char* oldBuf = buf_;
     std::size_t oldLen = len_;
     len_ = (std::max)(len_, offset + toWrite);
 
-    buf_ = new char[len_];
+	if(m_bufLen < len_)
+	{
+		buf_     = new char[len_];
+        m_bufLen = len_;
+	}
 
     if (oldBuf)
     {
@@ -70,6 +73,23 @@ std::size_t sqlite3_blob_backend::write(
         delete [] oldBuf;
     }
     memcpy(buf_ + offset, buf, toWrite);
+
+    return len_;
+}
+
+std::size_t sqlite3_blob_backend::write_from_start(const char * buf, std::size_t toWrite,
+				std::size_t offset)
+{
+    len_ = toWrite - offset;
+
+	if(m_bufLen < len_)
+	{
+		if(buf_)
+			delete[] buf_;
+		buf_     = new char[len_];
+        m_bufLen = len_;
+	}
+    memcpy(buf_, buf + offset, len_);
 
     return len_;
 }
@@ -89,6 +109,7 @@ std::size_t sqlite3_blob_backend::append(
     delete [] oldBuf;
 
     len_ += toWrite;
+    m_bufLen = len_;
 
     return len_;
 }
@@ -99,11 +120,20 @@ void sqlite3_blob_backend::trim(std::size_t newLen)
     const char* oldBuf = buf_;
     len_ = newLen;
 
-    buf_ = new char[len_];
+	if(!oldBuf)
+		return;
+	if(!len_)
+	{
+		delete[] buf_;
+		buf_     = nullptr;
+        m_bufLen = 0;
+		return;
+	}
 
+	buf_ = new char[len_];
+    m_bufLen = len_;
     memcpy(buf_, oldBuf, len_);
-
-    delete [] oldBuf;
+	delete [] oldBuf;
 }
 
 std::size_t sqlite3_blob_backend::set_data(char const *buf, std::size_t toWrite)
@@ -113,6 +143,7 @@ std::size_t sqlite3_blob_backend::set_data(char const *buf, std::size_t toWrite)
         delete [] buf_;
         buf_ = 0;
         len_ = 0;
+        m_bufLen = 0;
     }
     return write(0, buf, toWrite);
 }
