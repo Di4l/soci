@@ -51,6 +51,18 @@ std::size_t sqlite3_blob_backend::read(
     return r;
 }
 
+std::size_t sqlite3_blob_backend::read_from_start(char* buf, std::size_t toRead, std::size_t offset)
+{
+    size_t r = toRead - offset;
+
+    // make sure that we don't try to read
+    // past the end of the data
+    if (r > len_)
+        r = len_;
+    memcpy(buf, buf_, r);
+
+    return r;
+}
 
 std::size_t sqlite3_blob_backend::write(std::size_t offset, char const * buf, std::size_t toWrite)
 {
